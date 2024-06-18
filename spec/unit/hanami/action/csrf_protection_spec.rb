@@ -2,9 +2,7 @@
 
 RSpec.describe Hanami::Action::CSRFProtection do
   subject(:action) {
-    Class.new(Hanami::Action) {
-      include Hanami::Action::CSRFProtection
-    }.new
+    CsrfProtection::Default.new
   }
 
   let(:response) { action.(request) }

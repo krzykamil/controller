@@ -1,32 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::Action do
-  class FormatController
-    class Lookup < Hanami::Action
-      def handle(*)
-      end
-    end
-
-    class Custom < Hanami::Action
-      def handle(req, res)
-        input = req.params[:format]
-        input = input.to_sym unless input.nil?
-
-        res.format = input
-      end
-    end
-
-    class Configuration < Hanami::Action
-      config.format :jpg
-
-      def handle(*, res)
-        res.body = res.format
-      end
-    end
-  end
 
   describe "#format" do
-    let(:action) { FormatController::Lookup.new }
+    let(:action) { Formats::Lookup.new }
 
     it "lookup to #content_type if was not explicitly set (default: application/octet-stream)" do
       response = action.call({})
@@ -65,7 +42,7 @@ RSpec.describe Hanami::Action do
     # Bug
     # See https://github.com/hanami/controller/issues/167
     it "accepts '*/*' and returns configured default format" do
-      action = FormatController::Configuration.new
+      action = Formats::Configuration.new
       response = action.call("HTTP_ACCEPT" => "*/*")
 
       expect(response.format).to                  eq(:jpg)
@@ -85,7 +62,7 @@ RSpec.describe Hanami::Action do
   end
 
   describe "#format=" do
-    let(:action) { FormatController::Custom.new }
+    let(:action) { Formats::Custom.new }
 
     it "sets :all and returns 'application/octet-stream'" do
       response = action.call(format: "all")

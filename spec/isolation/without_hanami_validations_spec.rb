@@ -17,11 +17,7 @@ RSpec.describe "Without validations" do
 
   it "doesn't have params DSL" do
     expect do
-      Class.new(Hanami::Action) do
-        params do
-          required(:id).filled
-        end
-      end
+      WithoutHanamiValidations::Default.new.call({})
     end.to raise_error(
       NoMethodError,
       /To use `params`, please add 'hanami\/validations' gem to your Gemfile/
@@ -29,24 +25,18 @@ RSpec.describe "Without validations" do
   end
 
   it "has params that don't respond to .valid?" do
-    action = Class.new(Hanami::Action) do
-      def handle(req, res)
-        res.body = [req.params.respond_to?(:valid?), req.params.valid?]
-      end
-    end
+    action = WithoutHanamiValidations::NoParamsBlockValidCheck.new
 
-    response = action.new.call({})
+    response = action.call({})
+
     expect(response.body).to eq(["[true, true]"])
   end
 
   it "has params that don't respond to .errors" do
-    action = Class.new(Hanami::Action) do
-      def handle(req, res)
-        res.body = req.params.respond_to?(:errors)
-      end
-    end
+    action = WithoutHanamiValidations::NoParamsBlockErrorsCheck.new
 
-    response = action.new.call({})
+    response = action.call({})
+
     expect(response.body).to eq(["false"])
   end
 end
