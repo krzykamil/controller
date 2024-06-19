@@ -1551,6 +1551,36 @@ module SessionsWithoutCookies
   end
 end
 
+module Formats
+  class Lookup < Hanami::Action
+    def handle(*)
+    end
+  end
+
+  class Custom < Hanami::Action
+    def handle(req, res)
+      input = req.params[:format]
+      input = input.to_sym unless input.nil?
+
+      res.format = input
+    end
+  end
+
+  class Configuration < Hanami::Action
+    config.format :jpg
+
+    def handle(*, res)
+      res.body = res.format
+    end
+  end
+end
+
+module CsrfProtection
+  class Default < Hanami::Action
+    include Hanami::Action::CSRFProtection
+  end
+end
+
 module Mimes
   class Default < Hanami::Action
     def handle(_req, res)
@@ -1899,6 +1929,26 @@ module Inheritance
 
     def call(env)
       @routes.call(env)
+    end
+  end
+end
+
+module WithoutHanamiValidations
+  class Default < Hanami::Action
+    params do
+      required(:id).filled
+    end
+  end
+
+  class NoParamsBlockValidCheck < Hanami::Action
+    def handle(req, res)
+      res.body = [req.params.respond_to?(:valid?), req.params.valid?]
+    end
+  end
+
+  class NoParamsBlockErrorsCheck < Hanami::Action
+    def handle(req, res)
+      res.body = req.params.respond_to?(:errors)
     end
   end
 end
